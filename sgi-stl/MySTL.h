@@ -263,6 +263,40 @@ namespace MySTL {
         typedef Reference   reference;
     };
 
+    template <class Container>
+    struct back_insert_iterator : public iterator<output_iterator_tag, void, void, void, void>
+    {
+    protected:
+        typedef back_insert_iterator<Container> Self;
+        Container *container;
+    public:
+        typedef Container           container_type;
+        typedef output_iterator_tag iterator_category;
+        explicit back_insert_iterator(Container& x) :container(&x) {}
+        Self& operator=(const Self& other) { container = other.container; return *this; }
+        Self& operator=(const typename Container::value_type& val) { container->push_back(val); return *this; }
+        Self& operator*() { return *this; }
+        Self& operator++() { return *this; }
+        Self operator++(int) { return *this; }
+    };
+
+    template <class Container>
+    struct front_insert_iterator : public iterator<output_iterator_tag, void, void, void, void>
+    {
+    protected:
+        typedef front_insert_iterator<Container> Self;
+        Container *container;
+    public:
+        typedef Container           container_type;
+        typedef output_iterator_tag iterator_category;
+        explicit front_insert_iterator(Container& x) :container(&x) {}
+        Self& operator=(const Self& other) { container = other.container; return *this; }
+        Self& operator=(const typename Container::value_type& val) { container->push_front(val); return *this; }
+        Self& operator*() { return *this; }
+        Self& operator++() { return *this; }
+        Self& operator++(int) { return *this; }
+    };
+
     template <class ForwardIterator1, class ForwardIterator2>
     void iter_swap(ForwardIterator1 p, ForwardIterator2 q)
     {
@@ -337,6 +371,44 @@ namespace MySTL {
     {
         while (first != last)   *result++ = f(*first++);
         return result;
+    }
+
+    template<class _Container>
+    auto inline begin(_Container& _Cont) -> decltype(_Cont.begin())
+    {	// get beginning of sequence
+        return (_Cont.begin());
+    }
+
+    template<class _Container>
+    auto inline begin(const _Container& _Cont) -> decltype(_Cont.begin())
+    {	// get beginning of sequence
+        return (_Cont.begin());
+    }
+
+    template<class _Container>
+    auto inline end(_Container& _Cont) -> decltype(_Cont.end())
+    {	// get end of sequence
+        return (_Cont.end());
+    }
+
+    template<class _Container>
+    auto inline end(const _Container& _Cont) -> decltype(_Cont.end())
+    {	// get end of sequence
+        return (_Cont.end());
+    }
+
+    template<class _Ty,
+        size_t _Size> 
+        _Ty *begin(_Ty(&_Array)[_Size]) 
+    {	// get beginning of array
+        return (_Array);
+    }
+
+    template<class _Ty,
+        size_t _Size> 
+        _Ty *end(_Ty(&_Array)[_Size]) 
+    {	// get end of array
+        return (_Array + _Size);
     }
 
     template <class Arg, class Result>
@@ -419,4 +491,26 @@ namespace MySTL {
     {
         return pointer_to_unary_function<Arg, Result>(x);
     }
+
+    template <class T>
+    struct trivial_container
+    {
+        typedef T                   value_type;
+        typedef value_type*         pointer;
+        typedef const value_type*   const_pointer;
+        typedef value_type&         reference;
+        typedef const value_type&   const_reference;
+        typedef value_type*         iterator;
+        typedef const value_type*   const_iterator;
+        typedef ptrdiff_t           difference_type;
+        typedef size_t              size_type;
+        const_iterator begin() const { return 0; }
+        const_iterator end() const { return 0; }
+        iterator begin() { return 0; }
+        iterator end() { return 0; }
+        size_type size() const { return 0; }
+        bool empty() const { return true; }
+        size_type max_size() const { return 0; }
+        void swap(trivial_container&) {}
+    };
 };
